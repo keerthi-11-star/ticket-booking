@@ -1,5 +1,5 @@
 // Auth utility functions
-const API_BASE_URL = 'http://backend:3000/api';
+const API_BASE_URL = "/api";
 
 // Check if user is authenticated
 function isAuthenticated() {
@@ -117,5 +117,6 @@ function requireAdmin() {
     }
     return true;
 }
+
 
 
