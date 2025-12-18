@@ -28,7 +28,7 @@ async function handleLogin(e) {
     const isAdmin = document.getElementById('isAdmin').checked;
 
     try {
-        const response = await fetch('http://localhost:3000/api/auth/login', {
+        const response = await fetch("/api/auth/login", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -72,4 +72,5 @@ function clearErrors() {
         el.textContent = '';
     });
 }
+
 
