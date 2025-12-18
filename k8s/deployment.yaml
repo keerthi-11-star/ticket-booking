@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: keerthi1110/movieticket-frontend:latest
+        image: keerthi1110/movieticket-frontend:v2   # ✅ FIXED
+        imagePullPolicy: Always                     # ✅ IMPORTANT
         ports:
         - containerPort: 80
         volumeMounts:
