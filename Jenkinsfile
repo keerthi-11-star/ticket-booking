@@ -5,7 +5,7 @@ pipeline {
         DOCKER_REGISTRY = credentials('docker-registry-url')
         DOCKER_CREDENTIALS = credentials('docker-registry-creds')
         KUBECONFIG = credentials('kubeconfig-secret')
-        IMAGE_NAME = 'movieticket-api'
+        IMAGE_NAME = 'movieticket-backend'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         LATEST_TAG = 'latest'
     }
@@ -178,4 +178,5 @@ pipeline {
         }
     }
 }
+
 
