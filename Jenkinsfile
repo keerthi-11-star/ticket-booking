@@ -32,9 +32,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', 'dockerhub') {
-                        def backendImg = docker.build("${BACKEND_IMAGE}:${TAG}", "backend")
-                        backendImg.push()
-                        backendImg.push("latest")
+                        docker.build("${BACKEND_IMAGE}:${TAG}", "backend").push()
+                        docker.image("${BACKEND_IMAGE}:${TAG}").push("latest")
                     }
                 }
             }
@@ -44,9 +43,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', 'dockerhub') {
-                        def frontendImg = docker.build("${FRONTEND_IMAGE}:${TAG}", "frontend")
-                        frontendImg.push()
-                        frontendImg.push("latest")
+                        docker.build("${FRONTEND_IMAGE}:${TAG}", "frontend").push()
+                        docker.image("${FRONTEND_IMAGE}:${TAG}").push("latest")
                     }
                 }
             }
@@ -63,6 +61,9 @@ pipeline {
 
                     kubectl set image deployment/movieticket-frontend \
                       frontend=keerthi1110/movieticket-frontend:latest -n movieticket
+
+                    kubectl rollout restart deployment/movieticket-api -n movieticket
+                    kubectl rollout restart deployment/movieticket-frontend -n movieticket
 
                     kubectl rollout status deployment/movieticket-api -n movieticket
                     kubectl rollout status deployment/movieticket-frontend -n movieticket
