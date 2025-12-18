@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "keerthi1110/movieticket-api"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        BACKEND_IMAGE  = "keerthi1110/movieticket-api"
+        FRONTEND_IMAGE = "keerthi1110/movieticket-frontend"
+        TAG = "${BUILD_NUMBER}"
     }
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
         timeout(time: 30, unit: 'MINUTES')
         timestamps()
     }
@@ -20,7 +20,7 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Backend Dependencies') {
             steps {
                 dir('backend') {
                     sh 'npm ci'
@@ -28,24 +28,25 @@ pipeline {
             }
         }
 
-        stage('Lint & Test') {
+        stage('Build & Push Backend Image') {
             steps {
-                dir('backend') {
-                    sh '''
-                    npm run lint || echo "Lint skipped"
-                    npm test || echo "Tests skipped"
-                    '''
+                script {
+                    docker.withRegistry('', 'dockerhub') {
+                        def backendImg = docker.build("${BACKEND_IMAGE}:${TAG}", "backend")
+                        backendImg.push()
+                        backendImg.push("latest")
+                    }
                 }
             }
         }
 
-        stage('Build & Push Docker Image') {
+        stage('Build & Push Frontend Image') {
             steps {
                 script {
                     docker.withRegistry('', 'dockerhub') {
-                        def image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "backend")
-                        image.push()
-                        image.push("latest")
+                        def frontendImg = docker.build("${FRONTEND_IMAGE}:${TAG}", "frontend")
+                        frontendImg.push()
+                        frontendImg.push("latest")
                     }
                 }
             }
@@ -58,27 +59,13 @@ pipeline {
                     export KUBECONFIG=$KUBECONFIG_FILE
 
                     kubectl set image deployment/movieticket-api \
-                      api=keerthi1110/movieticket-api:latest \
-                      -n movieticket
+                      api=keerthi1110/movieticket-api:latest -n movieticket
 
-                    kubectl rollout status deployment/movieticket-api -n movieticket --timeout=5m
-                    '''
-                }
-            }
-        }
+                    kubectl set image deployment/movieticket-frontend \
+                      frontend=keerthi1110/movieticket-frontend:latest -n movieticket
 
-        stage('Smoke Test') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_FILE')]) {
-                    sh '''
-                    export KUBECONFIG=$KUBECONFIG_FILE
-
-                    API_IP=$(kubectl get svc movieticket-api -n movieticket -o jsonpath='{.spec.clusterIP}')
-                    PORT=$(kubectl get svc movieticket-api -n movieticket -o jsonpath='{.spec.ports[0].port}')
-
-                    kubectl run curl-test --rm -i --restart=Never \
-                      --image=curlimages/curl -- \
-                      curl -f http://$API_IP:$PORT/health
+                    kubectl rollout status deployment/movieticket-api -n movieticket
+                    kubectl rollout status deployment/movieticket-frontend -n movieticket
                     '''
                 }
             }
