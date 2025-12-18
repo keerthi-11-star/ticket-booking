@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: movieticket-ingress
+  namespace: movieticket
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  tls:
+  - hosts:
+    - movieticket.example.com
+    secretName: movieticket-tls
+  rules:
+  - host: movieticket.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: movieticket-frontend
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: movieticket-api
+            port:
+              number: 80
+      - path: /metrics
+        pathType: Prefix
+        backend:
+          service:
+            name: movieticket-api
+            port:
+              number: 80
+

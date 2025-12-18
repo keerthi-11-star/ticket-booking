@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MovieTicket</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🎬 MovieTicket</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="admin.html" class="nav-link active">Admin</a>
+                <button class="btn-logout" id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h1 class="page-title">Admin Dashboard</h1>
+            <button class="btn btn-primary" onclick="showAddMovieModal()">Add Movie</button>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <div class="admin-actions">
+            <button class="btn btn-secondary" onclick="loadMovies()">Movies</button>
+            <button class="btn btn-secondary" onclick="loadUsers()">Users</button>
+            <button class="btn btn-secondary" onclick="loadAllBookings()">All Bookings</button>
+        </div>
+
+        <div id="admin-content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Movie Modal -->
+    <div id="movie-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Movie</h2>
+                <button class="modal-close" onclick="closeMovieModal()">&times;</button>
+            </div>
+            <form id="movie-form">
+                <input type="hidden" id="movie-id">
+                <div class="form-group">
+                    <label for="movie-title">Title</label>
+                    <input type="text" id="movie-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="movie-poster">Poster URL</label>
+                    <input type="url" id="movie-poster">
+                </div>
+                <div class="form-group">
+                    <label for="movie-description">Description</label>
+                    <textarea id="movie-description" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="movie-price">Price ($)</label>
+                    <input type="number" id="movie-price" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="movie-showtimes">Showtimes (comma-separated ISO dates)</label>
+                    <input type="text" id="movie-showtimes" placeholder="2024-12-25T10:00:00Z, 2024-12-25T14:00:00Z">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
+

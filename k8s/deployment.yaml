@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieticket-api
+  namespace: movieticket
+  labels:
+    app: movieticket-api
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: movieticket-api
+  template:
+    metadata:
+      labels:
+        app: movieticket-api
+        version: v1
+    spec:
+      containers:
+      - name: api
+        image: movieticket-api:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: movieticket-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: movieticket-config
+              key: PORT
+        - name: JWT_EXPIRE
+          valueFrom:
+            configMapKeyRef:
+              name: movieticket-config
+              key: JWT_EXPIRE
+        - name: CORS_ORIGIN
+          valueFrom:
+            configMapKeyRef:
+              name: movieticket-config
+              key: CORS_ORIGIN
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: movieticket-config
+              key: MONGODB_URI
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: movieticket-secret
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieticket-frontend
+  namespace: movieticket
+  labels:
+    app: movieticket-frontend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: movieticket-frontend
+  template:
+    metadata:
+      labels:
+        app: movieticket-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: movieticket-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+

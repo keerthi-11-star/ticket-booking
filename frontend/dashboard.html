@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MovieTicket</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🎬 MovieTicket</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <button class="btn-logout" id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h1 class="page-title">My Dashboard</h1>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <section>
+            <h2>Available Movies</h2>
+            <div id="movies-grid" class="movies-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading movies...</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>My Bookings</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Movie</th>
+                            <th>Showtime</th>
+                            <th>Seats</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookings-table">
+                        <tr>
+                            <td colspan="6" class="loading">Loading bookings...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
+

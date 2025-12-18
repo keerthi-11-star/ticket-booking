@@ -1,0 +1,76 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: movieticket-alerts
+  namespace: movieticket
+  labels:
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: movieticket.rules
+    interval: 30s
+    rules:
+    - alert: HighErrorRate
+      expr: rate(http_errors_total[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate detected"
+        description: "Error rate is above 10% for the last 5 minutes"
+
+    - alert: HighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High latency detected"
+        description: "95th percentile latency is above 2 seconds"
+
+    - alert: PodCrashLooping
+      expr: rate(kube_pod_container_status_restarts_total{namespace="movieticket"}[15m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Pod is crash looping"
+        description: "Pod {{ $labels.pod }} is restarting frequently"
+
+    - alert: HighMemoryUsage
+      expr: (container_memory_usage_bytes{namespace="movieticket"} / container_spec_memory_limit_bytes) > 0.9
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage"
+        description: "Container {{ $labels.container }} is using more than 90% of its memory limit"
+
+    - alert: HighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{namespace="movieticket"}[5m]) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage"
+        description: "Container {{ $labels.container }} is using more than 80% CPU"
+
+    - alert: MongoDBDown
+      expr: up{job="movieticket-mongo"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "MongoDB is down"
+        description: "MongoDB service is not responding"
+
+    - alert: APIUnavailable
+      expr: up{job="movieticket-api"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "API is unavailable"
+        description: "MovieTicket API service is not responding"
+
