@@ -82,25 +82,10 @@ data:
 
       # Ticket Booking Backend
       - job_name: 'ticket-booking-backend'
-        kubernetes_sd_configs:
-          - role: endpoints
-            namespaces:
-              names:
-                - default
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_service_name]
-            action: keep
-            regex: backend-service
-          - source_labels: [__meta_kubernetes_endpoint_port_name]
-            action: keep
-            regex: http
-          - source_labels: [__meta_kubernetes_namespace]
-            target_label: namespace
-          - source_labels: [__meta_kubernetes_pod_name]
-            target_label: pod
-          - source_labels: [__meta_kubernetes_service_name]
-            target_label: service
-        metric_relabel_configs:
-          - source_labels: [__name__]
-            regex: 'http_request_duration_ms.*'
-            action: keep
+        static_configs:
+          - targets: ['movieticket-api.movieticket.svc.cluster.local:80']
+            labels:
+              namespace: 'movieticket'
+              service: 'movieticket-api'
+        metrics_path: '/metrics'
+        scrape_interval: 15s
